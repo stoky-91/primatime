@@ -1,6 +1,4 @@
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 class Main {
     public static void main(String[] args) {
@@ -41,12 +39,36 @@ class Main {
     private static SumAndCount calculateSumAndCount(List<Node> nodes, double weight, double decay) {
         SumAndCount result = new SumAndCount(0, 0);
 
+        // Iterativní přístup místo rekurzivního
+        Queue<IteratorContext> queue = new LinkedList<>();
         for (Node node : nodes) {
-            result.add(node.getValue() * weight);
-            result.add(calculateSumAndCount(node.getNodes(), weight * decay, decay));
+            queue.add(new IteratorContext(node, weight));
+        }
+
+        while (!queue.isEmpty()) {
+            IteratorContext context = queue.poll();
+            Node node = context.node;
+            double currentWeight = context.weight;
+
+            result.add(node.getValue() * currentWeight);
+
+            for (Node child : node.getNodes()) {
+                queue.add(new IteratorContext(child, currentWeight * decay));
+            }
         }
 
         return result;
+    }
+
+    // Pomocná třída pro iteraci
+    static class IteratorContext {
+        Node node;
+        double weight;
+
+        IteratorContext(Node node, double weight) {
+            this.node = node;
+            this.weight = weight;
+        }
     }
 
     static class SumAndCount {
